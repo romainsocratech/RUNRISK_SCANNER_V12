@@ -9,8 +9,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
         .header-bg { background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%); }
-        .metric-card { transition: all 0.2s ease; }
-        .metric-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body class="bg-white text-gray-800">
@@ -33,8 +31,8 @@
             <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">RUN Risk Scanner – <span class="text-blue-600">Audit de résilience logicielle</span> pour DSI</h2>
             <p class="text-xl text-gray-600 mb-10 max-w-2xl">Analysez la structure de vos projets logiciels et identifiez les fragilités du RUN avant qu'elles ne deviennent des incidents critiques.</p>
             <div class="flex flex-wrap gap-4">
-                <a href="/scanner" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-4 rounded-lg shadow-md transition duration-200 text-lg">Lancer le diagnostic</a>
-                <a href="/plaquette_runrisk.pdf" download class="bg-white hover:bg-gray-50 text-gray-700 font-medium px-8 py-4 rounded-lg border border-gray-300 shadow-sm transition duration-200 text-lg">Télécharger la plaquette</a>
+                <a href="scanner.html" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-4 rounded-lg shadow-md transition duration-200 text-lg">Lancer le diagnostic</a>
+                <a href="plaquetteRunRisk.pdf" download class="bg-white hover:bg-gray-50 text-gray-700 font-medium px-8 py-4 rounded-lg border border-gray-300 shadow-sm transition duration-200 text-lg">Télécharger la plaquette</a>
             </div>
         </div>
     </section>
@@ -55,18 +53,18 @@
             <h3 class="text-3xl font-bold text-gray-800 mb-4 text-center">Métriques analysées</h3>
             <p class="text-gray-500 text-center mb-12 max-w-2xl mx-auto">12 indicateurs clés pour une vision complète de la santé de votre code</p>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
-                <div class="metric-card bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium">👥 Développeurs actifs</div>
-                <div class="metric-card bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium">⚠️ Bus factor</div>
-                <div class="metric-card bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium">🎯 Concentration du savoir</div>
-                <div class="metric-card bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium">📝 Total commits</div>
-                <div class="metric-card bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium">🔄 Code churn</div>
-                <div class="metric-card bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium">🔥 Hotspots</div>
-                <div class="metric-card bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium">📅 Âge du projet</div>
-                <div class="metric-card bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium">📏 Taille du code</div>
-                <div class="metric-card bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium">📁 Nombre de fichiers</div>
-                <div class="metric-card bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium">❗ Fichiers critiques</div>
-                <div class="metric-card bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium">📊 Répartition des contributions</div>
-                <div class="metric-card bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium">🧩 Complexité structurelle</div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium hover:shadow-md transition">👥 Développeurs actifs</div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium hover:shadow-md transition">⚠️ Bus factor</div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium hover:shadow-md transition">🎯 Concentration du savoir</div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium hover:shadow-md transition">📝 Total commits</div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium hover:shadow-md transition">🔄 Code churn</div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium hover:shadow-md transition">🔥 Hotspots</div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium hover:shadow-md transition">📅 Âge du projet</div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium hover:shadow-md transition">📏 Taille du code</div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium hover:shadow-md transition">📁 Nombre de fichiers</div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium hover:shadow-md transition">❗ Fichiers critiques</div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium hover:shadow-md transition">📊 Répartition des contributions</div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center font-medium hover:shadow-md transition">🧩 Complexité structurelle</div>
             </div>
         </div>
     </section>
@@ -139,26 +137,26 @@
             <h3 class="text-3xl font-bold text-gray-800 mb-12 text-center">Contactez notre équipe</h3>
             <div class="grid md:grid-cols-2 gap-12">
                 <div>
-                    <form id="contactForm" class="space-y-5">
+                    <form id="contactForm" action="mailto:romainbrubach@socratech.fr" method="post" enctype="text/plain" class="space-y-5">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-                            <input type="text" name="nom" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <input type="text" name="Nom" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Entreprise</label>
-                            <input type="text" name="entreprise" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <input type="text" name="Entreprise" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <input type="email" name="Email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-                            <input type="tel" name="telephone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <input type="tel" name="Téléphone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                            <textarea name="message" rows="4" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                            <textarea name="Message" rows="4" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
                         </div>
                         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-4 rounded-lg transition duration-200">Envoyer</button>
                     </form>
@@ -179,34 +177,21 @@
                             <a href="mailto:romainbrubach@socratech.fr" class="text-blue-600 hover:underline">romainbrubach@socratech.fr</a>
                         </p>
                     </div>
+                    
+                    <!-- Logo en bas de la page (version plus grande) -->
+                    <div class="mt-8 pt-6 border-t border-gray-200 flex justify-center">
+                        <img src="logo.png" alt="Socratech" class="h-20 w-auto opacity-80">
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-8">
+    <!-- Footer avec copyright -->
+    <footer class="bg-gray-900 text-white py-6">
         <div class="container mx-auto px-6 text-center text-sm text-gray-400">
-            © 2024 Socratech - RUN Risk Scanner. Tous droits réservés.
+            Copyright © Socratech 2024 - RUN Risk Scanner. Tous droits réservés.
         </div>
     </footer>
-
-    <script>
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData);
-            
-            // Simulation d'envoi - Dans un environnement réel, ce serait un fetch vers /contact
-            console.log('Envoi du formulaire:', data);
-            
-            // Construction du mailto
-            const subject = encodeURIComponent('Contact RUN Risk Scanner');
-            const body = encodeURIComponent(
-                `Nom: ${data.nom}\nEntreprise: ${data.entreprise}\nEmail: ${data.email}\nTéléphone: ${data.telephone}\n\nMessage:\n${data.message}`
-            );
-            window.location.href = `mailto:romainbrubach@socratech.fr?subject=${subject}&body=${body}`;
-        });
-    </script>
 </body>
 </html>
