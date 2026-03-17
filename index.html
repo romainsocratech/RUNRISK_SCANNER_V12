@@ -10,11 +10,9 @@
         body { font-family: 'Inter', sans-serif; background-color: #ffffff; }
         .hero-gradient { background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%); }
         .metric-card { border: 1px solid #eef0f4; transition: all 0.2s ease; }
-        .metric-card:hover { box-shadow: 0 8px 16px -4px rgba(0,0,0,0.04); }
+      <img src="1713538297616.jpg" alt="Socratech" class="h-32 w-auto">
         .btn-primary { background-color: #0052cc; color: white; transition: all 0.2s ease; }
         .btn-primary:hover { background-color: #0040a8; }
-        .btn-outline { border: 1px solid #d0d5dd; background: white; transition: all 0.2s ease; }
-        .btn-outline:hover { border-color: #0052cc; color: #0052cc; }
         .footer { background-color: #0a1628; color: #8896aa; }
         .plaquette-link { color: #5a6a82; font-size: 14px; text-decoration: none; border-bottom: 1px dotted #5a6a82; }
         .plaquette-link:hover { color: #0052cc; border-bottom-color: #0052cc; }
@@ -22,22 +20,18 @@
 </head>
 <body class="text-gray-800">
 
-    <!-- Header avec lien plaquette en haut à droite -->
+    <!-- Header avec UNIQUEMENT le lien plaquette (SANS logo) -->
     <header class="border-b border-gray-200 bg-white py-4">
-    <div class="container mx-auto px-6 flex justify-end items-center">
-        <a href="plaquette_v12.pdf" download class="plaquette-link">Plaquette</a>
-    </div>
-</header>
-                <span class="text-xl font-semibold text-gray-800">RUN Risk Scanner</span>
-            </div>
-            <a href="plaquette_v12.pdf" download class="plaquette-link">Plaquette</a>
+        <div class="container mx-auto px-6 flex justify-end items-center">
+            <a href="plaquette_v12.pdf" download class="plaquette-link">Télécharger la plaquette</a>
         </div>
     </header>
-
-    <!-- Hero avec logo centré -->
+<a href="plaquette_v12.pdf" download class="plaquette-link">Télécharger la plaquette</a>
+    <!-- Hero avec logo centré AU-DESSUS du titre -->
     <section class="hero-gradient py-16">
         <div class="container mx-auto px-6 max-w-4xl text-center">
-            <div class="flex justify-center mb-8">
+            <!-- Logo centré -->
+            <div class="flex justify-center mb-6">
                 <img src="logo.png" alt="Socratech" class="h-32 w-auto">
             </div>
             <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">RUN Risk Scanner</h1>
@@ -96,6 +90,7 @@
                             Envoyer la demande
                         </button>
                     </form>
+                    <p class="text-xs text-gray-500 mt-2">* Votre client email s'ouvrira pour envoyer le message</p>
                 </div>
 
                 <!-- Métriques analysées à droite -->
