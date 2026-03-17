@@ -10,7 +10,7 @@ import json
 import tempfile
 import subprocess
 import shutil
-import time
+import re
 from collections import Counter
 import argparse
 
@@ -27,7 +27,7 @@ class GitAnalyzer:
         print(f"Clonage de {self.repo_url}...", file=sys.stderr)
         try:
             # Clone avec profondeur limitée pour les grands repos
-            result = subprocess.run(
+            subprocess.run(
                 ['git', 'clone', '--depth', '1000', self.repo_url, self.repo_name],
                 cwd=self.temp_dir,
                 capture_output=True,
@@ -36,23 +36,23 @@ class GitAnalyzer:
                 timeout=120  # Timeout de 2 minutes
             )
             self.repo_path = os.path.join(self.temp_dir, self.repo_name)
-            print(f"✅ Repository cloné dans {self.repo_path}", file=sys.stderr)
+            print(f"Repository cloné dans {self.repo_path}", file=sys.stderr)
             return True
-            
+
         except subprocess.TimeoutExpired:
-            print("❌ Timeout: Le clonage a pris trop de temps (limite: 2 minutes)", file=sys.stderr)
+            print("Timeout: Le clonage a pris trop de temps (limite: 2 minutes)", file=sys.stderr)
             return False
-            
+
         except subprocess.CalledProcessError as e:
             # Gestion correcte de l'erreur stderr
             error_msg = e.stderr if e.stderr else "Erreur inconnue"
             if isinstance(error_msg, bytes):
                 error_msg = error_msg.decode('utf-8', errors='ignore')
-            print(f"❌ Erreur lors du clonage: {error_msg}", file=sys.stderr)
+            print(f"Erreur lors du clonage: {error_msg}", file=sys.stderr)
             return False
-            
+
         except Exception as e:
-            print(f"❌ Erreur inattendue: {str(e)}", file=sys.stderr)
+            print(f"Erreur inattendue: {str(e)}", file=sys.stderr)
             return False
 
     def get_commit_count(self):
@@ -68,7 +68,7 @@ class GitAnalyzer:
             )
             return int(result.stdout.strip())
         except subprocess.TimeoutExpired:
-            print("⚠️ Timeout: Récupération du nombre de commits", file=sys.stderr)
+            print("Timeout: Récupération du nombre de commits", file=sys.stderr)
             return 0
         except:
             return 0
@@ -98,7 +98,7 @@ class GitAnalyzer:
                             continue
             return authors
         except subprocess.TimeoutExpired:
-            print("⚠️ Timeout: Récupération des auteurs", file=sys.stderr)
+            print("Timeout: Récupération des auteurs", file=sys.stderr)
             return []
         except:
             return []
@@ -117,7 +117,7 @@ class GitAnalyzer:
             files = result.stdout.strip().split('\n')
             return len([f for f in files if f and f.strip()])
         except subprocess.TimeoutExpired:
-            print("⚠️ Timeout: Récupération des fichiers", file=sys.stderr)
+            print("Timeout: Récupération des fichiers", file=sys.stderr)
             return 0
         except:
             return 0
@@ -137,7 +137,7 @@ class GitAnalyzer:
             hotspots = Counter(files).most_common(top_n)
             return hotspots
         except subprocess.TimeoutExpired:
-            print("⚠️ Timeout: Récupération des hotspots", file=sys.stderr)
+            print("Timeout: Récupération des hotspots", file=sys.stderr)
             return []
         except:
             return []
@@ -156,24 +156,23 @@ class GitAnalyzer:
             total_insertions = 0
             total_deletions = 0
             commit_count = 0
-            
-            import re
+
             for line in result.stdout.split('\n'):
                 if 'insertion' in line or 'deletion' in line:
                     insertions = re.search(r'(\d+) insertion', line)
                     deletions = re.search(r'(\d+) deletion', line)
-                    
+
                     if insertions:
                         total_insertions += int(insertions.group(1))
                     if deletions:
                         total_deletions += int(deletions.group(1))
                     commit_count += 1
-            
+
             if commit_count == 0:
                 return 0
             return (total_insertions + total_deletions) // commit_count
         except subprocess.TimeoutExpired:
-            print("⚠️ Timeout: Récupération du code churn", file=sys.stderr)
+            print("Timeout: Récupération du code churn", file=sys.stderr)
             return 0
         except:
             return 0
@@ -192,12 +191,12 @@ class GitAnalyzer:
             timestamps = result.stdout.strip().split('\n')
             if len(timestamps) < 2:
                 return 0
-            
+
             first_commit = int(timestamps[0])
             last_commit = int(timestamps[-1])
             return (last_commit - first_commit) // (60 * 60 * 24)
         except subprocess.TimeoutExpired:
-            print("⚠️ Timeout: Récupération de l'âge du projet", file=sys.stderr)
+            print("Timeout: Récupération de l'âge du projet", file=sys.stderr)
             return 0
         except:
             return 0
@@ -209,36 +208,36 @@ class GitAnalyzer:
         """
         if not authors:
             return 1
-        
+
         total_commits = sum(count for _, count in authors)
         if total_commits == 0:
             return 1
-        
+
         # Tri par nombre de commits décroissant
         sorted_authors = sorted(authors, key=lambda x: x[1], reverse=True)
-        
+
         cumulative = 0
         bus_factor = 0
         threshold = 0.5  # 50% des commits
-        
+
         for _, count in sorted_authors:
             cumulative += count
             bus_factor += 1
             if cumulative / total_commits >= threshold:
                 break
-        
+
         return max(1, bus_factor)
 
     def calculate_knowledge_concentration(self, authors):
         """Calcule la concentration des connaissances."""
         if not authors:
             return 0
-        
+
         counts = [count for _, count in authors]
         total = sum(counts)
         if total == 0:
             return 0
-        
+
         # Pourcentage des commits par le contributeur principal
         top_contributor_pct = (max(counts) / total) * 100
         return round(top_contributor_pct, 1)
@@ -247,12 +246,12 @@ class GitAnalyzer:
         """Calcule un indice de complexité structurelle."""
         if file_count == 0:
             return "N/A"
-        
+
         # Ratio commits par fichier
         commits_per_file = commit_count / max(1, file_count)
-        
+
         if commits_per_file > 10:
-            return "élevée"
+            return "elevee"
         elif commits_per_file > 5:
             return "moyenne"
         else:
@@ -264,7 +263,7 @@ class GitAnalyzer:
         Plus le score est élevé, plus le risque est grand.
         """
         score = 0
-        
+
         # Bus factor (plus c'est petit, plus c'est risqué)
         if metrics['bus_factor'] <= 1:
             score += 30
@@ -272,7 +271,7 @@ class GitAnalyzer:
             score += 20
         elif metrics['bus_factor'] == 3:
             score += 10
-        
+
         # Concentration des connaissances
         if metrics['knowledge_concentration'] > 70:
             score += 25
@@ -280,61 +279,61 @@ class GitAnalyzer:
             score += 15
         elif metrics['knowledge_concentration'] > 30:
             score += 5
-        
+
         # Code churn
         if metrics['code_churn'] > 50:
             score += 20
         elif metrics['code_churn'] > 20:
             score += 10
-        
+
         # Hotspots
         if metrics['hotspots_count'] > 10:
             score += 15
         elif metrics['hotspots_count'] > 5:
             score += 8
-        
+
         # Taille du projet (complexité)
         if metrics['file_count'] > 500:
             score += 10
         elif metrics['file_count'] > 200:
             score += 5
-        
+
         return min(100, score)
 
     def generate_recommendations(self, metrics):
         """Génère des recommandations basées sur les métriques."""
         recommendations = []
-        
+
         if metrics['bus_factor'] <= 2:
-            recommendations.append("🚨 Réduire la dépendance à un expert - Bus factor critique")
-            recommendations.append("👥 Mettre en place du binômage sur les modules critiques")
-        
+            recommendations.append("Reduire la dependance a un expert - Bus factor critique")
+            recommendations.append("Mettre en place du binomage sur les modules critiques")
+
         if metrics['knowledge_concentration'] > 50:
-            recommendations.append("📚 Documenter les modules critiques")
-            recommendations.append("🔄 Équilibrer la répartition des contributions")
-        
+            recommendations.append("Documenter les modules critiques")
+            recommendations.append("Equilibrer la repartition des contributions")
+
         if metrics['code_churn'] > 30:
-            recommendations.append("⚡ Stabiliser les modules les plus modifiés")
-            recommendations.append("🎯 Analyser les causes du code churn élevé")
-        
+            recommendations.append("Stabiliser les modules les plus modifies")
+            recommendations.append("Analyser les causes du code churn eleve")
+
         if metrics['hotspots_count'] > 5:
-            recommendations.append("🔥 Refactorer les hotspots critiques")
-            recommendations.append("📊 Cartographier les flux applicatifs")
-        
+            recommendations.append("Refactorer les hotspots critiques")
+            recommendations.append("Cartographier les flux applicatifs")
+
         if metrics['file_count'] > 300:
-            recommendations.append("🏛️ Envisager une modularisation du code")
-        
+            recommendations.append("Envisager une modularisation du code")
+
         if metrics['project_age_days'] > 365 * 3:  # Plus de 3 ans
-            recommendations.append("🔄 Identifier et moderniser les modules legacy")
-        
+            recommendations.append("Identifier et moderniser les modules legacy")
+
         # Recommendations par défaut si rien d'autre
         if not recommendations:
             recommendations = [
-                "📝 Maintenir la documentation à jour",
-                "👀 Surveiller l'évolution des métriques",
-                "🛡️ Mettre en place des revues de code régulières"
+                "Maintenir la documentation a jour",
+                "Surveiller l evolution des metriques",
+                "Mettre en place des revues de code regulieres"
             ]
-        
+
         return recommendations[:6]  # Max 6 recommandations
 
     def cleanup(self):
@@ -350,8 +349,8 @@ class GitAnalyzer:
         if not self.clone_repository():
             return None
 
-        print("📊 Analyse en cours...", file=sys.stderr)
-        
+        print("Analyse en cours...", file=sys.stderr)
+
         # Collecte des métriques
         authors_data = self.get_authors()
         commit_count = self.get_commit_count()
@@ -362,7 +361,7 @@ class GitAnalyzer:
         bus_factor = self.calculate_bus_factor(authors_data)
         knowledge_conc = self.calculate_knowledge_concentration(authors_data)
         complexity = self.calculate_complexity(file_count, commit_count, len(authors_data))
-        
+
         metrics = {
             'repo_url': self.repo_url,
             'commit_count': commit_count,
@@ -376,73 +375,73 @@ class GitAnalyzer:
             'file_count': file_count,
             'project_age_days': project_age,
             'complexity': complexity,
-            'risk_score': 0,  # Sera calculé après
-            'recommendations': []  # Sera généré après
+            'risk_score': 0,
+            'recommendations': []
         }
-        
+
         # Calcul du score de risque
         metrics['risk_score'] = self.calculate_risk_score(metrics)
-        
+
         # Génération des recommandations
         metrics['recommendations'] = self.generate_recommendations(metrics)
-        
+
         return metrics
 
 
 def print_diagnostic(metrics):
     """Affiche le diagnostic formaté."""
     print("\n" + "="*60)
-    print("🔍 RUN RISK SCANNER - DIAGNOSTIC")
+    print("RUN RISK SCANNER - DIAGNOSTIC")
     print("="*60)
-    
+
     # Score de risque
-    print(f"\n🎯 RUN Risk Score : {metrics['risk_score']} / 100")
+    print(f"\nRUN Risk Score : {metrics['risk_score']} / 100")
     if metrics['risk_score'] < 30:
-        print("   Niveau: ✅ Risque faible")
+        print("   Niveau: Risque faible")
     elif metrics['risk_score'] < 60:
-        print("   Niveau: ⚠️ Risque modéré")
+        print("   Niveau: Risque modere")
     else:
-        print("   Niveau: 🚨 Risque élevé")
-    
+        print("   Niveau: Risque eleve")
+
     # Analyse structurelle
-    print("\n📊 ANALYSE STRUCTURELLE")
+    print("\nANALYSE STRUCTURELLE")
     print("-"*40)
-    print(f"Développeurs actifs      : {metrics['authors_count']}")
+    print(f"Developpeurs actifs      : {metrics['authors_count']}")
     print(f"Bus factor               : {metrics['bus_factor']}")
     print(f"Concentration savoir     : {metrics['knowledge_concentration']}%")
     print(f"Total commits            : {metrics['commit_count']}")
     print(f"Code churn               : {metrics['code_churn']} lignes/commit")
     print(f"Hotspots                 : {metrics['hotspots_count']} fichiers critiques")
-    print(f"Âge du projet            : {metrics['project_age_days']} jours")
+    print(f"Age du projet            : {metrics['project_age_days']} jours")
     print(f"Nombre de fichiers       : {metrics['file_count']}")
-    print(f"Complexité structurelle  : {metrics['complexity']}")
-    
+    print(f"Complexite structurelle  : {metrics['complexity']}")
+
     # Top hotspots
     if metrics['hotspots']:
-        print("\n🔥 HOTSPOTS (fichiers les plus modifiés)")
+        print("\nHOTSPOTS (fichiers les plus modifies)")
         print("-"*40)
         for i, (file, count) in enumerate(metrics['hotspots'][:5], 1):
             display_file = file if len(file) <= 60 else file[:57] + "..."
             print(f"{i}. {display_file} ({count} modifications)")
-    
+
     # Recommandations
-    print("\n💡 RECOMMANDATIONS")
+    print("\nRECOMMANDATIONS")
     print("-"*40)
     for rec in metrics['recommendations']:
-        print(f"• {rec}")
-    
+        print(f"  {rec}")
+
     print("\n" + "="*60)
 
 
 def main():
     parser = argparse.ArgumentParser(description='RUN Risk Scanner - Analyseur de risques Git')
-    parser.add_argument('repo_url', help='URL du repository Git à analyser')
+    parser.add_argument('repo_url', help='URL du repository Git a analyser')
     parser.add_argument('--json', action='store_true', help='Sortie au format JSON')
-    
+
     args = parser.parse_args()
-    
+
     analyzer = GitAnalyzer(args.repo_url)
-    
+
     try:
         metrics = analyzer.analyze()
         if metrics:
@@ -453,11 +452,11 @@ def main():
                 # Sortie formatée pour la ligne de commande
                 print_diagnostic(metrics)
         else:
-            error_msg = {"error": "L'analyse a échoué"}
+            error_msg = {"error": "L'analyse a echoue"}
             if args.json:
                 print(json.dumps(error_msg))
             else:
-                print("❌ L'analyse a échoué.", file=sys.stderr)
+                print("L'analyse a echoue.", file=sys.stderr)
             sys.exit(1)
     finally:
         analyzer.cleanup()
