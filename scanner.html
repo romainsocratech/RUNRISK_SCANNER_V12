@@ -4,59 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RUN Risk Scanner - Analyse Git</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .result-card { transition: all 0.2s ease; }
+        .score-high { color: #c0392b; }
+        .score-medium { color: #d68910; }
+        .score-low { color: #1a7a4a; }
     </style>
 </head>
 <body class="min-h-screen">
-    <!-- Header avec logo -->
-    <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex items-center gap-4">
-                <img src="logo.png" alt="Socratech" class="h-10 w-auto">
-                <div>
-                    <h1 class="text-xl font-semibold text-gray-800">RUN Risk Scanner</h1>
-                    <p class="text-xs text-gray-500">Analyse d'un repository Git</p>
-                </div>
-            </div>
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10 py-4">
+        <div class="container mx-auto px-6 flex items-center gap-4">
+            <img src="logo.png" alt="Socratech" class="h-10 w-auto">
+            <h1 class="text-xl font-semibold text-gray-800">RUN Risk Scanner</h1>
+            <span class="text-sm text-gray-500 ml-auto">Analyse du repository Git</span>
         </div>
     </header>
 
     <!-- Main -->
     <main class="container mx-auto px-6 py-10 max-w-5xl">
-        <!-- Input section -->
+        <!-- Section de saisie -->
         <div class="bg-white rounded-xl shadow-md p-8 mb-8">
-            <h2 class="text-2xl font-semibold mb-6">Analyser un repository</h2>
+            <h2 class="text-2xl font-semibold mb-6">Analyse du repository Git</h2>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-                Entrez l'adresse de votre repository Git
+                URL du repository Git
             </label>
             <div class="flex flex-col md:flex-row gap-4">
                 <input type="url" id="repoUrl" placeholder="https://github.com/facebook/react" 
                        class="flex-1 px-5 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg">
                 <button id="analyzeBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-4 rounded-lg shadow-sm transition duration-200 text-lg whitespace-nowrap">
-                    Analyser le repository
+                    Analyser le projet
                 </button>
             </div>
             <p class="text-sm text-gray-500 mt-3">Exemple: https://github.com/facebook/react</p>
         </div>
 
-        <!-- Loading indicator -->
+        <!-- Loading -->
         <div id="loading" class="hidden text-center py-16">
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
             <p class="mt-4 text-lg text-gray-600">Analyse en cours, clonage du repository...</p>
             <p class="text-sm text-gray-400">Cette opération peut prendre quelques instants</p>
         </div>
 
-        <!-- Error message -->
+        <!-- Erreur -->
         <div id="error" class="hidden bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-6"></div>
 
-        <!-- Results section -->
+        <!-- Résultats -->
         <div id="results" class="hidden space-y-6">
-            <!-- Score -->
+            
+            <!-- RUN Risk Score -->
             <div class="bg-white rounded-xl shadow-md p-8">
-                <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center justify-between mb-4">
                     <h3 class="text-xl font-semibold">RUN Risk Score</h3>
                     <span id="riskLevel" class="px-4 py-2 text-sm font-medium rounded-full"></span>
                 </div>
@@ -66,9 +68,9 @@
                 </div>
             </div>
 
-            <!-- Analyse structurelle -->
+            <!-- Métriques principales -->
             <div class="bg-white rounded-xl shadow-md p-8">
-                <h3 class="text-xl font-semibold mb-6">Analyse structurelle</h3>
+                <h3 class="text-xl font-semibold mb-6">Métriques d'analyse</h3>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
                     <div>
                         <span class="text-sm text-gray-500 block">Développeurs actifs</span>
@@ -99,19 +101,19 @@
                         <span id="projectAge" class="text-2xl font-semibold">-</span>
                     </div>
                     <div>
-                        <span class="text-sm text-gray-500 block">Nombre de fichiers</span>
-                        <span id="fileCount" class="text-2xl font-semibold">-</span>
+                        <span class="text-sm text-gray-500 block">Fichiers critiques</span>
+                        <span id="criticalFiles" class="text-2xl font-semibold">-</span>
                     </div>
                     <div>
-                        <span class="text-sm text-gray-500 block">Complexité structurelle</span>
-                        <span id="complexity" class="text-2xl font-semibold">-</span>
+                        <span class="text-sm text-gray-500 block">Activité récente</span>
+                        <span id="recentActivity" class="text-2xl font-semibold">-</span>
                     </div>
                 </div>
             </div>
 
             <!-- Hotspots détaillés -->
             <div id="hotspotsDetails" class="bg-white rounded-xl shadow-md p-8 hidden">
-                <h3 class="text-xl font-semibold mb-4">🔥 Fichiers les plus modifiés</h3>
+                <h3 class="text-xl font-semibold mb-4">Fichiers les plus modifiés</h3>
                 <div id="hotspotsList" class="space-y-3"></div>
             </div>
 
@@ -132,10 +134,10 @@
         </div>
     </main>
 
-    <!-- Footer avec copyright -->
+    <!-- Footer -->
     <footer class="bg-gray-900 text-white py-4 mt-10">
         <div class="container mx-auto px-6 text-center text-sm text-gray-400">
-            Copyright © Socratech 2024 - RUN Risk Scanner | <a href="mailto:romainbrubach@socratech.fr" class="text-blue-400 hover:underline">romainbrubach@socratech.fr</a>
+            Copyright © Socratech 2024 · RUN Risk Scanner
         </div>
     </footer>
 
@@ -160,13 +162,11 @@
                 return;
             }
 
-            // Validation simple de l'URL
             if (!repoUrl.match(/^https?:\/\//)) {
                 alert('Veuillez entrer une URL valide commençant par http:// ou https://');
                 return;
             }
 
-            // UI: afficher loading, cacher résultats
             loading.classList.remove('hidden');
             results.classList.add('hidden');
             error.classList.add('hidden');
@@ -185,13 +185,13 @@
 
                 const data = await response.json();
                 
-                // Mise à jour du score
+                // Score et niveau de risque
                 document.getElementById('riskScore').textContent = data.risk_score;
                 const riskLevelSpan = document.getElementById('riskLevel');
-                if (data.risk_score < 30) {
-                    riskLevelSpan.textContent = 'Risque faible';
+                if (data.risk_score < 40) {
+                    riskLevelSpan.textContent = 'Faible risque';
                     riskLevelSpan.className = 'px-4 py-2 text-sm font-medium rounded-full bg-green-100 text-green-800';
-                } else if (data.risk_score < 60) {
+                } else if (data.risk_score < 70) {
                     riskLevelSpan.textContent = 'Risque modéré';
                     riskLevelSpan.className = 'px-4 py-2 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800';
                 } else {
@@ -207,7 +207,7 @@
                 document.getElementById('codeChurn').textContent = (data.code_churn || 0) + ' lignes/commit';
                 document.getElementById('hotspots').textContent = data.hotspots_count || 0;
                 
-                // Âge du projet formaté
+                // Âge du projet
                 const days = data.project_age_days || 0;
                 if (days < 30) {
                     document.getElementById('projectAge').textContent = days + ' jours';
@@ -218,8 +218,8 @@
                     document.getElementById('projectAge').textContent = years + ' an' + (years>1?'s':'');
                 }
                 
-                document.getElementById('fileCount').textContent = data.file_count || 0;
-                document.getElementById('complexity').textContent = data.complexity || 'N/A';
+                document.getElementById('criticalFiles').textContent = data.hotspots_count || 0;
+                document.getElementById('recentActivity').textContent = data.recent_activity || 'Normale';
 
                 // Hotspots détaillés
                 if (data.hotspots && data.hotspots.length > 0) {
@@ -237,7 +237,7 @@
                         item.innerHTML = `
                             <span class="text-gray-500 w-6">${index+1}.</span>
                             <span class="font-mono text-gray-700 flex-1" title="${file}">${displayFile}</span>
-                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${count} modif.</span>
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${count} modifications</span>
                         `;
                         hotspotsList.appendChild(item);
                     });
@@ -248,16 +248,13 @@
                 // Recommandations
                 const recList = document.getElementById('recommendationsList');
                 recList.innerHTML = '';
-                const defaultRecs = [
-                    'Documenter les modules critiques',
-                    'Réduire la dépendance à un expert',
-                    'Mettre en place du binômage',
-                    'Cartographier les flux applicatifs',
+                const recs = data.recommendations || [
+                    'Renforcer la documentation des modules critiques',
+                    'Réduire la dépendance à un seul développeur',
                     'Stabiliser les modules les plus modifiés',
-                    'Identifier les modules legacy'
+                    'Mettre en place du binômage sur les zones sensibles',
+                    'Identifier les modules legacy à moderniser'
                 ];
-                
-                const recs = data.recommendations || defaultRecs;
                 recs.forEach(rec => {
                     const li = document.createElement('li');
                     li.className = 'flex items-start gap-3';
