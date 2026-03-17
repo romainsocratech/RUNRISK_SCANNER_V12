@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RUN Risk Scanner - Analyse Git</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .result-card { transition: all 0.2s ease; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center gap-4">
+                <img src="logo.png" alt="Socratech" class="h-10 w-auto">
+                <div>
+                    <h1 class="text-xl font-semibold text-gray-800">RUN Risk Scanner</h1>
+                    <p class="text-xs text-gray-500">Analyse d'un repository Git</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="container mx-auto px-6 py-10 max-w-5xl">
+        <!-- Input section -->
+        <div class="bg-white rounded-xl shadow-md p-8 mb-8">
+            <h2 class="text-2xl font-semibold mb-6">Analyser un repository</h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <input type="url" id="repoUrl" placeholder="https://github.com/facebook/react" 
+                       class="flex-1 px-5 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg">
+                <button id="analyzeBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-4 rounded-lg shadow-sm transition duration-200 text-lg whitespace-nowrap">
+                    Analyser
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mt-3">Exemple: https://github.com/facebook/react</p>
+        </div>
+
+        <!-- Loading indicator -->
+        <div id="loading" class="hidden text-center py-16">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+            <p class="mt-4 text-lg text-gray-600">Analyse en cours, cloning du repository...</p>
+            <p class="text-sm text-gray-400">Cette opération peut prendre quelques instants</p>
+        </div>
+
+        <!-- Error message -->
+        <div id="error" class="hidden bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-6"></div>
+
+        <!-- Results section -->
+        <div id="results" class="hidden space-y-6">
+            <!-- Score -->
+            <div class="bg-white rounded-xl shadow-md p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold">RUN Risk Score</h3>
+                    <span id="riskLevel" class="px-4 py-2 text-sm font-medium rounded-full"></span>
+                </div>
+                <div class="flex items-end gap-2">
+                    <span id="riskScore" class="text-6xl font-bold text-blue-700">--</span>
+                    <span class="text-3xl text-gray-400 mb-1">/100</span>
+                </div>
+            </div>
+
+            <!-- Analyse structurelle -->
+            <div class="bg-white rounded-xl shadow-md p-8">
+                <h3 class="text-xl font-semibold mb-6">Analyse structurelle</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                    <div>
+                        <span class="text-sm text-gray-500 block">Développeurs actifs</span>
+                        <span id="activeDevs" class="text-2xl font-semibold">-</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 block">Bus factor</span>
+                        <span id="busFactor" class="text-2xl font-semibold">-</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 block">Concentration savoir</span>
+                        <span id="knowledgeConc" class="text-2xl font-semibold">-</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 block">Total commits</span>
+                        <span id="totalCommits" class="text-2xl font-semibold">-</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 block">Code churn</span>
+                        <span id="codeChurn" class="text-2xl font-semibold">-</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 block">Hotspots</span>
+                        <span id="hotspots" class="text-2xl font-semibold">-</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 block">Âge du projet</span>
+                        <span id="projectAge" class="text-2xl font-semibold">-</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 block">Nombre de fichiers</span>
+                        <span id="fileCount" class="text-2xl font-semibold">-</span>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 block">Complexité structurelle</span>
+                        <span id="complexity" class="text-2xl font-semibold">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hotspots détaillés -->
+            <div id="hotspotsDetails" class="bg-white rounded-xl shadow-md p-8 hidden">
+                <h3 class="text-xl font-semibold mb-4">🔥 Fichiers les plus modifiés</h3>
+                <div id="hotspotsList" class="space-y-3"></div>
+            </div>
+
+            <!-- Recommandations -->
+            <div class="bg-white rounded-xl shadow-md p-8">
+                <h3 class="text-xl font-semibold mb-6">Recommandations</h3>
+                <ul id="recommendationsList" class="space-y-4">
+                    <!-- Rempli dynamiquement -->
+                </ul>
+            </div>
+
+            <!-- Nouvelle analyse -->
+            <div class="text-center pt-4">
+                <button onclick="resetAnalysis()" class="text-blue-600 hover:text-blue-800 font-medium">
+                    ← Analyser un autre repository
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const repoInput = document.getElementById('repoUrl');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const error = document.getElementById('error');
+
+        function resetAnalysis() {
+            results.classList.add('hidden');
+            repoInput.value = '';
+            loading.classList.add('hidden');
+            error.classList.add('hidden');
+        }
+
+        analyzeBtn.addEventListener('click', async function() {
+            const repoUrl = repoInput.value.trim();
+            if (!repoUrl) {
+                alert('Veuillez entrer une URL de repository');
+                return;
+            }
+
+            // Validation simple de l'URL Git
+            if (!repoUrl.match(/^https?:\/\/(github\.com|gitlab\.com|bitbucket\.org)\/.+/)) {
+                alert('Veuillez entrer une URL de repository valide (GitHub, GitLab, Bitbucket)');
+                return;
+            }
+
+            // UI: afficher loading, cacher résultats
+            loading.classList.remove('hidden');
+            results.classList.add('hidden');
+            error.classList.add('hidden');
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ repo_url: repoUrl })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erreur lors de l\'analyse');
+                }
+
+                const data = await response.json();
+                
+                // Mise à jour du score
+                document.getElementById('riskScore').textContent = data.risk_score;
+                const riskLevelSpan = document.getElementById('riskLevel');
+                if (data.risk_score < 30) {
+                    riskLevelSpan.textContent = 'Risque faible';
+                    riskLevelSpan.className = 'px-4 py-2 text-sm font-medium rounded-full bg-green-100 text-green-800';
+                } else if (data.risk_score < 60) {
+                    riskLevelSpan.textContent = 'Risque modéré';
+                    riskLevelSpan.className = 'px-4 py-2 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800';
+                } else {
+                    riskLevelSpan.textContent = 'Risque élevé';
+                    riskLevelSpan.className = 'px-4 py-2 text-sm font-medium rounded-full bg-red-100 text-red-800';
+                }
+
+                // Métriques
+                document.getElementById('activeDevs').textContent = data.authors_count;
+                document.getElementById('busFactor').textContent = data.bus_factor;
+                document.getElementById('knowledgeConc').textContent = data.knowledge_concentration + '%';
+                document.getElementById('totalCommits').textContent = data.commit_count;
+                document.getElementById('codeChurn').textContent = data.code_churn + ' lignes/commit';
+                document.getElementById('hotspots').textContent = data.hotspots_count;
+                
+                // Âge du projet formaté
+                const days = data.project_age_days;
+                if (days < 30) {
+                    document.getElementById('projectAge').textContent = days + ' jours';
+                } else if (days < 365) {
+                    document.getElementById('projectAge').textContent = Math.round(days/30) + ' mois';
+                } else {
+                    const years = Math.floor(days/365);
+                    const remainingDays = days % 365;
+                    document.getElementById('projectAge').textContent = years + ' an' + (years>1?'s':'') + (remainingDays>0?', ' + Math.round(remainingDays/30) + ' mois':'');
+                }
+                
+                document.getElementById('fileCount').textContent = data.file_count;
+                document.getElementById('complexity').textContent = data.complexity || 'N/A';
+
+                // Hotspots détaillés
+                if (data.hotspots && data.hotspots.length > 0) {
+                    const hotspotsDiv = document.getElementById('hotspotsDetails');
+                    const hotspotsList = document.getElementById('hotspotsList');
+                    hotspotsList.innerHTML = '';
+                    
+                    data.hotspots.slice(0, 5).forEach((hotspot, index) => {
+                        const file = hotspot[0];
+                        const count = hotspot[1];
+                        const maxLength = 60;
+                        const displayFile = file.length > maxLength ? '...' + file.slice(-maxLength) : file;
+                        
+                        const item = document.createElement('div');
+                        item.className = 'flex items-center gap-2 text-sm';
+                        item.innerHTML = `
+                            <span class="text-gray-500 w-6">${index+1}.</span>
+                            <span class="font-mono text-gray-700 flex-1" title="${file}">${displayFile}</span>
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${count} modif.</span>
+                        `;
+                        hotspotsList.appendChild(item);
+                    });
+                    
+                    hotspotsDiv.classList.remove('hidden');
+                }
+
+                // Recommandations
+                const recList = document.getElementById('recommendationsList');
+                recList.innerHTML = '';
+                const defaultRecs = [
+                    'Documenter les modules critiques',
+                    'Réduire la dépendance à un expert',
+                    'Mettre en place du binômage',
+                    'Cartographier les flux applicatifs',
+                    'Stabiliser les modules les plus modifiés',
+                    'Identifier les modules legacy'
+                ];
+                
+                const recs = data.recommendations || defaultRecs;
+                recs.forEach(rec => {
+                    const li = document.createElement('li');
+                    li.className = 'flex items-start gap-3';
+                    li.innerHTML = `
+                        <span class="text-blue-600 mt-1">•</span>
+                        <span class="text-gray-700">${rec}</span>
+                    `;
+                    recList.appendChild(li);
+                });
+
+                results.classList.remove('hidden');
+            } catch (err) {
+                error.textContent = 'Erreur: ' + err.message;
+                error.classList.remove('hidden');
+            } finally {
+                loading.classList.add('hidden');
+            }
+        });
+
+        // Enter key
+        repoInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
