@@ -8,11 +8,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .result-card { transition: all 0.2s ease; }
     </style>
 </head>
 <body class="min-h-screen">
-    <!-- Header -->
+    <!-- Header avec logo -->
     <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
         <div class="container mx-auto px-6 py-4">
             <div class="flex items-center gap-4">
@@ -30,11 +29,14 @@
         <!-- Input section -->
         <div class="bg-white rounded-xl shadow-md p-8 mb-8">
             <h2 class="text-2xl font-semibold mb-6">Analyser un repository</h2>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                Entrez l'adresse de votre repository Git
+            </label>
             <div class="flex flex-col md:flex-row gap-4">
                 <input type="url" id="repoUrl" placeholder="https://github.com/facebook/react" 
                        class="flex-1 px-5 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg">
                 <button id="analyzeBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-4 rounded-lg shadow-sm transition duration-200 text-lg whitespace-nowrap">
-                    Analyser
+                    Analyser le repository
                 </button>
             </div>
             <p class="text-sm text-gray-500 mt-3">Exemple: https://github.com/facebook/react</p>
@@ -43,7 +45,7 @@
         <!-- Loading indicator -->
         <div id="loading" class="hidden text-center py-16">
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
-            <p class="mt-4 text-lg text-gray-600">Analyse en cours, cloning du repository...</p>
+            <p class="mt-4 text-lg text-gray-600">Analyse en cours, clonage du repository...</p>
             <p class="text-sm text-gray-400">Cette opération peut prendre quelques instants</p>
         </div>
 
@@ -130,6 +132,13 @@
         </div>
     </main>
 
+    <!-- Footer avec copyright -->
+    <footer class="bg-gray-900 text-white py-4 mt-10">
+        <div class="container mx-auto px-6 text-center text-sm text-gray-400">
+            Copyright © Socratech 2024 - RUN Risk Scanner | <a href="mailto:romainbrubach@socratech.fr" class="text-blue-400 hover:underline">romainbrubach@socratech.fr</a>
+        </div>
+    </footer>
+
     <script>
         const analyzeBtn = document.getElementById('analyzeBtn');
         const repoInput = document.getElementById('repoUrl');
@@ -151,9 +160,9 @@
                 return;
             }
 
-            // Validation simple de l'URL Git
-            if (!repoUrl.match(/^https?:\/\/(github\.com|gitlab\.com|bitbucket\.org)\/.+/)) {
-                alert('Veuillez entrer une URL de repository valide (GitHub, GitLab, Bitbucket)');
+            // Validation simple de l'URL
+            if (!repoUrl.match(/^https?:\/\//)) {
+                alert('Veuillez entrer une URL valide commençant par http:// ou https://');
                 return;
             }
 
@@ -191,26 +200,25 @@
                 }
 
                 // Métriques
-                document.getElementById('activeDevs').textContent = data.authors_count;
-                document.getElementById('busFactor').textContent = data.bus_factor;
-                document.getElementById('knowledgeConc').textContent = data.knowledge_concentration + '%';
-                document.getElementById('totalCommits').textContent = data.commit_count;
-                document.getElementById('codeChurn').textContent = data.code_churn + ' lignes/commit';
-                document.getElementById('hotspots').textContent = data.hotspots_count;
+                document.getElementById('activeDevs').textContent = data.authors_count || 0;
+                document.getElementById('busFactor').textContent = data.bus_factor || 0;
+                document.getElementById('knowledgeConc').textContent = (data.knowledge_concentration || 0) + '%';
+                document.getElementById('totalCommits').textContent = data.commit_count || 0;
+                document.getElementById('codeChurn').textContent = (data.code_churn || 0) + ' lignes/commit';
+                document.getElementById('hotspots').textContent = data.hotspots_count || 0;
                 
                 // Âge du projet formaté
-                const days = data.project_age_days;
+                const days = data.project_age_days || 0;
                 if (days < 30) {
                     document.getElementById('projectAge').textContent = days + ' jours';
                 } else if (days < 365) {
                     document.getElementById('projectAge').textContent = Math.round(days/30) + ' mois';
                 } else {
                     const years = Math.floor(days/365);
-                    const remainingDays = days % 365;
-                    document.getElementById('projectAge').textContent = years + ' an' + (years>1?'s':'') + (remainingDays>0?', ' + Math.round(remainingDays/30) + ' mois':'');
+                    document.getElementById('projectAge').textContent = years + ' an' + (years>1?'s':'');
                 }
                 
-                document.getElementById('fileCount').textContent = data.file_count;
+                document.getElementById('fileCount').textContent = data.file_count || 0;
                 document.getElementById('complexity').textContent = data.complexity || 'N/A';
 
                 // Hotspots détaillés
@@ -222,8 +230,7 @@
                     data.hotspots.slice(0, 5).forEach((hotspot, index) => {
                         const file = hotspot[0];
                         const count = hotspot[1];
-                        const maxLength = 60;
-                        const displayFile = file.length > maxLength ? '...' + file.slice(-maxLength) : file;
+                        const displayFile = file.length > 60 ? file.substring(0, 57) + '...' : file;
                         
                         const item = document.createElement('div');
                         item.className = 'flex items-center gap-2 text-sm';
