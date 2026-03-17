@@ -23,34 +23,41 @@ class GitAnalyzer:
         self.repo_path = None
 
     def clone_repository(self):
-        """Clone le repository Git (deep clone limité à 1000 commits pour performance)."""
-        print(f"Clonage de {self.repo_url}...", file=sys.stderr)
+      def clone_repository(self):
+    """Clone le repository Git (deep clone limité à 1000 commits pour performance)."""
+    print(f"Clonage de {self.repo_url}...", file=sys.stderr)
+    try:
+        # Vérifier que git est installé
         try:
-            subprocess.run(
-                ['git', 'clone', '--depth', '1000', self.repo_url, self.repo_name],
-                cwd=self.temp_dir,
-                capture_output=True,
-                text=True,
-                check=True,
-                timeout=120
-            )
-            self.repo_path = os.path.join(self.temp_dir, self.repo_name)
-            print(f"Repository cloné dans {self.repo_path}", file=sys.stderr)
-            return True
-
-        except subprocess.TimeoutExpired:
-            print("Timeout: Le clonage a pris trop de temps", file=sys.stderr)
+            subprocess.run(['git', '--version'], capture_output=True, check=True)
+        except:
+            print("Git n'est pas installé ou n'est pas dans le PATH", file=sys.stderr)
             return False
-
-        except subprocess.CalledProcessError as e:
-            error_msg = e.stderr if e.stderr else "Erreur inconnue"
-            if isinstance(error_msg, bytes):
-                error_msg = error_msg.decode('utf-8', errors='ignore')
+            
+        # Clone sans check=True pour gérer les erreurs nous-mêmes
+        result = subprocess.run(
+            ['git', 'clone', '--depth', '1000', self.repo_url, self.repo_name],
+            cwd=self.temp_dir,
+            capture_output=True,
+            text=True,
+            timeout=120
+        )
+        
+        if result.returncode != 0:
+            error_msg = result.stderr if result.stderr else "Erreur inconnue"
             print(f"Erreur lors du clonage: {error_msg}", file=sys.stderr)
             return False
+            
+        self.repo_path = os.path.join(self.temp_dir, self.repo_name)
+        print(f"Repository cloné dans {self.repo_path}", file=sys.stderr)
+        return True
 
-        except Exception as e:
-            print(f"Erreur inattendue: {str(e)}", file=sys.stderr)
+    except subprocess.TimeoutExpired:
+        print("Timeout: Le clonage a pris trop de temps", file=sys.stderr)
+        return False
+    except Exception as e:
+        print(f"Erreur inattendue: {str(e)}", file=sys.stderr)
+        return False
             return False
 
     def get_commit_count(self):
@@ -239,7 +246,19 @@ class GitAnalyzer:
 
         top_contributor_pct = (max(counts) / total) * 100
         return round(top_contributor_pct, 1)
+def calculate_complexity(self, file_count, commit_count):
+    """Calcule un indice de complexité structurelle."""
+    if file_count == 0:
+        return "N/A"
 
+    commits_per_file = commit_count / max(1, file_count)
+
+    if commits_per_file > 10:
+        return "Elevée"
+    elif commits_per_file > 5:
+        return "Moyenne"
+    else:
+        return "Faible"
     def calculate_risk_score(self, metrics):
         """Calcule le score de risque RUN (0-100)."""
         score = 0
@@ -275,17 +294,40 @@ class GitAnalyzer:
 
         return min(100, score)
 
-    def generate_recommendations(self, metrics):
-        """Génère des recommandations."""
-        recommendations = []
+   def generate_recommendations(self, metrics):
+    """Génère des recommandations."""
+    recommendations = []
 
-        if metrics['bus_factor'] <= 2:
-            recommendations.append("Reduire la dependance a un seul developpeur")
-            recommendations.append("Mettre en place du binomage sur les modules critiques")
+    if metrics['bus_factor'] <= 2:
+        recommendations.append("Reduire la dependance a un seul developpeur")
+        recommendations.append("Mettre en place du binomage sur les modules critiques")
 
-        if metrics['knowledge_concentration'] > 50:
-            recommendations.append("Renforcer la documentation des modules critiques")
-            recommendations.append("Equilibrer la repartition des contributions")
+    if metrics['knowledge_concentration'] > 50:
+        recommendations.append("Renforcer la documentation des modules critiques")
+        recommendations.append("Equilibrer la repartition des contributions")
 
-        if metrics['code_churn'] > 30:
-            recommendations.append
+    if metrics['code_churn'] > 30:
+        recommendations.append("Stabiliser les modules les plus modifies")
+        recommendations.append("Analyser les causes du code churn eleve")
+
+    if metrics['hotspots_count'] > 5:
+        recommendations.append("Refactorer les hotspots critiques")
+        recommendations.append("Cartographier les flux applicatifs")
+
+    if metrics['file_count'] > 300:
+        recommendations.append("Envisager une modularisation du code")
+
+    if metrics['project_age_days'] > 365 * 3:
+        recommendations.append("Identifier et moderniser les modules legacy")
+
+    if not recommendations:
+        recommendations = [
+            "Maintenir la documentation a jour",
+            "Surveiller l evolution des metriques",
+            "Mettre en place des revues de code regulieres"
+        ]
+
+    return recommendations[:6]
+
+
+
